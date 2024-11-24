@@ -107,6 +107,8 @@ DEFAULT_USER=`whoami`
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias lg="lazygit"
 alias mc="make checkpoint"
+alias n="pnpm "
+
 
 # pnpm
 export PNPM_HOME="/Users/alexcarpenter/Library/pnpm"

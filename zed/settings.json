@@ -1,0 +1,27 @@
+{
+  "assistant": {
+    "default_model": {
+      "provider": "copilot_chat",
+      "model": "gpt-4o"
+    },
+    "version": "2"
+  },
+  "theme": "Gruvbox Dark",
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false
+  },
+  "vim_mode": true,
+  "ui_font_family": "JetBrains Mono",
+  "ui_font_size": 14,
+  "buffer_font_family": "JetBrains Mono",
+  "buffer_font_size": 14,
+  "buffer_font_weight": 300,
+  "buffer_font_features": {
+    "liga": false
+  },
+  "preferred_line_length": 80,
+  "project_panel": {
+    "dock": "right"
+  }
+}
