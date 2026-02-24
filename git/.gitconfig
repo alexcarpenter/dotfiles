@@ -1,0 +1,21 @@
+[user]
+  name = alexcarpenter
+  email = im.alexcarpenter@gmail.com
+
+[init]
+  defaultBranch = main
+
+[pull]
+  rebase = false
+
+[core]
+  editor = zed --wait
+
+[alias]
+  co = checkout
+  br = branch
+  st = status
+  lg = log --oneline -10
+
+[credential]
+  helper = osxkeychain
