@@ -1,21 +1,8 @@
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
 [user]
-  name = alexcarpenter
-  email = im.alexcarpenter@gmail.com
-
-[init]
-  defaultBranch = main
-
-[pull]
-  rebase = false
-
-[core]
-  editor = zed --wait
-
-[alias]
-  co = checkout
-  br = branch
-  st = status
-  lg = log --oneline -10
-
-[credential]
-  helper = osxkeychain
+	name = Alex Carpenter
+	email = im.alexcarpenter@gmail.com
