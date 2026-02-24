@@ -4,7 +4,7 @@ brew 'fnm'
 brew 'mole'
 brew 'opencode'
 brew 'stow'
-
+brew 'lazygit'
 
 tap 'homebrew/cask-fonts'
 cask 'font-jetbrains-mono'
