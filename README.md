@@ -10,7 +10,7 @@ cd ~/dotfiles
 ### First time setup
 
 ```bash
-./dot init
+./cli init
 ```
 
 This will:
@@ -23,31 +23,31 @@ This will:
 
 ```bash
 # Stow all packages
-./dot stow
+./cli stow
 
 # Stow specific package
-./dot stow zsh
-./dot stow zed
+./cli stow zsh
+./cli stow zed
 ```
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `./dot init` | Full system setup |
-| `./dot stow [package]` | Symlink dotfiles to home |
-| `./dot link` | Install dot to PATH |
-| `./dot unlink` | Remove dot from PATH |
-| `./dot doctor` | Run diagnostics |
-| `./dot update` | Update Homebrew packages |
-| `./dot gen-ssh-key [email]` | Generate SSH key |
+| `./cli init` | Full system setup |
+| `./cli stow [package]` | Symlink dotfiles to home |
+| `./cli link` | Install dot to PATH |
+| `./cli unlink` | Remove dot from PATH |
+| `./cli doctor` | Run diagnostics |
+| `./cli update` | Update Homebrew packages |
+| `./cli gen-ssh-key [email]` | Generate SSH key |
 
 ## Updates
 
 ```bash
 cd ~/dotfiles
 git pull
-./dot stow
+./cli stow
 ```
 
 ## Add new package
@@ -57,7 +57,7 @@ git pull
 mkdir -p <new-package>/.config/app
 
 # stow it
-./dot stow <new-package>
+./cli stow <new-package>
 
 # commit
 git add <new-package>

@@ -10,7 +10,7 @@ readonly CYAN='\033[0;36m'
 readonly RESET='\033[0m'
 readonly BOLD='\033[1m'
 
-readonly SCRIPT_NAME="dot"
+readonly SCRIPT_NAME="cli"
 readonly VERSION="1.0.0"
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly DOTFILES_DIR
@@ -20,7 +20,7 @@ readonly BREWFILE
 STOW_TARGET="${STOW_TARGET:-$HOME}"
 readonly STOW_TARGET
 
-DEFAULT_IGNORE_PACKAGES=("node_modules" ".git" ".github" "Brewfile" "README.md" "dot")
+DEFAULT_IGNORE_PACKAGES=("node_modules" ".git" ".github" "Brewfile" "README.md" "cli")
 
 print_header() {
     echo -e "\n${BOLD}${BLUE}==>${RESET} ${BOLD}$1${RESET}"
@@ -223,7 +223,7 @@ cmd_link() {
         return 1
     fi
     
-    ln -s "$DOTFILES_DIR/dot" "$bin_path"
+    ln -s "$DOTFILES_DIR/cli" "$bin_path"
     print_success "Linked dot to $bin_path"
     
     local zshrc="${HOME}/.zshrc"
