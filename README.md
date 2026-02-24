@@ -34,3 +34,7 @@ bootstrap saves overwritten files to ~/dotfiles_backup_YYYYMMDD_HHMMSS/
 stow -n -v -t $HOME <new-package>
 stow -v -t $HOME <new-package>
 git add <new-package> && git commit -m "Add <new-package>"
+
+8. Claude skills
+# stow the claude package (links ~/.config/claude/skills)
+stow -v -t $HOME claude
