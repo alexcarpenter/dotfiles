@@ -51,6 +51,12 @@ Capture current:
 brew bundle dump --file=./Brewfile --force --describe
 ```
 
+## Zsh plugins
+
+```bash
+./scripts/install-plugins.sh
+```
+
 ## Add new package
 
 ```bash

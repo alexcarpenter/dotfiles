@@ -288,6 +288,7 @@ Next steps (suggested):
 
 - Verify your shells and editors work as expected. Restart your terminal if needed.
 - If you added macOS services in Brewfile, make sure to run any recommended service setup (e.g. `brew services start ...`).
+- Install zsh plugins: ./scripts/install-plugins.sh
 - To add a package to the repository:
     - Create a top-level directory (e.g. 'git') and put the files with their target paths relative to the package root.
     - From the repo root: stow -v -t \$HOME git
