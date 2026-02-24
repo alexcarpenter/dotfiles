@@ -1,4 +1,5 @@
 tap 'anomalyco/tap'
+brew 'zsh'
 brew 'gh'
 brew 'fnm'
 brew 'mole'
