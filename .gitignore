@@ -1,0 +1,28 @@
+# dotfiles bootstrap backups
+dotfiles_backup_*/
+
+# macOS system files
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+.VolumeIcon.icns
+.DocumentRevisions-V100
+.fseventsd
+.FBCIndex
+Icon?
+
+# Editor/temp files
+*.swp
+*.swo
+*~
+*.tmp
+
+# Common OS/IDE cruft (optional)
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+node_modules/

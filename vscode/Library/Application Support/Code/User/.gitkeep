@@ -1,0 +1,36 @@
+# .gitkeep placeholder for the "vscode" GNU Stow package
+#
+# Purpose:
+# - Keep the directory in git so this folder can act as a Stow package for VS Code user settings.
+# - Place VS Code user files here so Stow can create symlinks into:
+#     ~/Library/Application Support/Code/User/
+#
+# Typical files to add in this directory:
+# - settings.json
+# - keybindings.json
+# - snippets/ (folder with snippet files)
+# - globalStorage/ (if you track extensions/settings that write there)
+#
+# Example layout inside the repo (this package):
+# dotfiles/
+# └── vscode/
+#     └── Library/
+#         └── Application Support/
+#             └── Code/
+#                 └── User/
+#                     ├── settings.json
+#                     └── keybindings.json
+#
+# How to stow (from the repo root):
+# - Default (when running from repo root and you want to target $HOME):
+#     stow -v --target="$HOME" vscode
+#
+# - Or explicitly specify the package directory (-d) and target (-t):
+#     stow -v -d /path/to/repo -t "$HOME" vscode
+#
+# Use `stow -n` for a dry run to preview changes:
+#     stow -n -v -t "$HOME" vscode
+#
+# Notes:
+# - If files already exist at the target, back them up before stowing or use the bootstrap script that handles backups.
+# - Keep this placeholder to ensure the package directory structure is present in the repo.

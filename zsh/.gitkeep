@@ -1,0 +1,6 @@
+# .gitkeep placeholder for the zsh stow package
+# This directory is intentionally kept in git so the `zsh` package
+# can be managed by GNU Stow as part of the dotfiles repository.
+#
+# Add your zsh files here (for example: .zshrc, .zprofile, etc.)
+# and use `stow -t $HOME zsh` to create symlinks into your home directory.

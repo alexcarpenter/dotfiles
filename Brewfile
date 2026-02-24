@@ -1,4 +1,13 @@
 brew 'gh'
+brew 'mole'
+brew 'stow'
+
 
 tap 'homebrew/cask-fonts'
 cask 'font-jetbrains-mono'
+cask 'iterm2'
+cask 'raycast'
+cask 'visual-studio-code'
+cask 'zed'
+cask 'bitwarden'
+cask 'github'

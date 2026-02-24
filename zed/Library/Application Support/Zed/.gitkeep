@@ -1,0 +1,41 @@
+```dotfiles/zed/Library/Application Support/Zed/.gitkeep#L1-60
+# .gitkeep placeholder for the "zed" GNU Stow package
+#
+# Purpose:
+# - Keep this directory structure in the repository so it can act as a Stow package
+#   for Zed editor user settings.
+# - Place Zed user files here so Stow can create symlinks into:
+#     ~/Library/Application Support/Zed/
+#
+# Typical files to add in this directory:
+# - settings.json
+# - keymap.json
+# - snippets/ (folder with snippet files)
+# - extensions/ or other Zed-specific folders you want tracked
+#
+# Example repository layout (for this package):
+# dotfiles/
+# └── zed/
+#     └── Library/
+#         └── Application Support/
+#             └── Zed/
+#                 ├── settings.json
+#                 └── keymap.json
+#
+# How to stow (from the repo root):
+# - Default (run from repo root, target is $HOME):
+#     stow -v --target="$HOME" zed
+#
+# - Or explicitly specify the package directory (-d) and target (-t):
+#     stow -v -d /path/to/repo -t "$HOME" zed
+#
+# - Use dry-run to preview changes before applying:
+#     stow -n -v -t "$HOME" zed
+#
+# Notes:
+# - If files already exist at the target location, back them up before stowing
+#   or use the repository bootstrap script which handles backups.
+# - Keep this placeholder so the directory structure is preserved in git.
+#
+# When you add real files, remove or replace this placeholder with the actual files
+# you want tracked (settings.json, keymap.json, etc.).
