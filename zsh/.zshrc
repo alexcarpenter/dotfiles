@@ -13,7 +13,7 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="agnoster"
-plugins=(git jump)
+plugins=(git jump zsh-autosuggestions zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
 
