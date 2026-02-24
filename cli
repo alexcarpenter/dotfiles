@@ -295,6 +295,8 @@ cmd_doctor() {
     else
         print_error "$errors issue(s) found"
     fi
+    
+    echo
 }
 
 cmd_update() {

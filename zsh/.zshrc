@@ -19,6 +19,10 @@ source $ZSH/oh-my-zsh.sh
 
 DEFAULT_USER=`whoami`
 
+prompt_dir() {
+  prompt_segment blue black '%1~'
+}
+
 # === Aliases ===
 
 alias lg="lazygit"
