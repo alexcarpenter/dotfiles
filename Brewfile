@@ -1,4 +1,5 @@
 brew 'gh'
+brew 'fnm'
 brew 'mole'
 brew 'stow'
 
@@ -11,3 +12,4 @@ cask 'visual-studio-code'
 cask 'zed'
 cask 'bitwarden'
 cask 'github'
+cask 'karabiner-elements'
