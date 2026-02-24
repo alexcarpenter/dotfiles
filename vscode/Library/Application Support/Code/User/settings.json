@@ -4,7 +4,7 @@
   "workbench.preferredLightColorTheme": "GitHub Light",
   "workbench.preferredDarkColorTheme": "GitHub Dark",
   "workbench.tree.indent": 20,
-  "editor.fontFamily": "JetBrains Mono NL, Menlo, Monaco, 'Courier New', monospace",
+  "editor.fontFamily": "JetBrains Mono, Menlo, Monaco, 'Courier New', monospace",
   "editor.fontSize": 15,
   "editor.tabSize": 2,
   "editor.cursorStyle": "block",
