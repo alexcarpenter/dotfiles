@@ -1,6 +1,8 @@
+tap 'anomalyco/tap'
 brew 'gh'
 brew 'fnm'
 brew 'mole'
+brew 'opencode'
 brew 'stow'
 
 
