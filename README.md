@@ -7,54 +7,47 @@ git clone https://github.com/alexcarpenter/dotfiles ~/dotfiles
 cd ~/dotfiles
 ```
 
-### Bootstrap (first time)
+### First time setup
 
 ```bash
-./bootstrap.sh --dry-run  # preview
-./bootstrap.sh --yes      # apply
+./dot init
 ```
+
+This will:
+- Install Homebrew (if missing)
+- Install packages from Brewfile
+- Stow all dotfiles to your home directory
+- Link the `dot` command to your PATH
 
 ### Stow packages
 
 ```bash
-# preview
-stow -n -v -t $HOME <package>
+# Stow all packages
+./dot stow
 
-# apply
-stow -v -t $HOME <package>
-
-# remove
-stow -D -v -t $HOME <package>
+# Stow specific package
+./dot stow zsh
+./dot stow zed
 ```
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `./dot init` | Full system setup |
+| `./dot stow [package]` | Symlink dotfiles to home |
+| `./dot link` | Install dot to PATH |
+| `./dot unlink` | Remove dot from PATH |
+| `./dot doctor` | Run diagnostics |
+| `./dot update` | Update Homebrew packages |
+| `./dot gen-ssh-key [email]` | Generate SSH key |
 
 ## Updates
 
 ```bash
 cd ~/dotfiles
 git pull
-stow -v -t $HOME zsh       # re-link shell
-stow -v -t $HOME zed       # re-link editor
-stow -v -t $HOME vscode    # re-link editor
-stow -v -t $HOME karabiner # re-link karabiner
-```
-
-## Brew
-
-```bash
-brew update
-brew bundle --file=./Brewfile
-```
-
-Capture current:
-
-```bash
-brew bundle dump --file=./Brewfile --force --describe
-```
-
-## Zsh plugins
-
-```bash
-./scripts/install-plugins.sh
+./dot stow
 ```
 
 ## Add new package
@@ -62,11 +55,9 @@ brew bundle dump --file=./Brewfile --force --describe
 ```bash
 # create folder at root with target-relative paths
 mkdir -p <new-package>/.config/app
-# add files to <new-package>/.config/app/
 
 # stow it
-stow -n -v -t $HOME <new-package>
-stow -v -t $HOME <new-package>
+./dot stow <new-package>
 
 # commit
 git add <new-package>
@@ -75,4 +66,4 @@ git commit -m "Add <new-package>"
 
 ## Backups
 
-Bootstrap saves overwritten files to `~/dotfiles_backup_YYYYMMDD_HHMMSS/`
+The stow command saves overwritten files to `~/dotfiles_backup_YYYYMMDD_HHMMSS/`

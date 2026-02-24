@@ -1,4 +1,4 @@
-# dotfiles bootstrap backups
+# dotfiles stow backups
 dotfiles_backup_*/
 
 # macOS system files

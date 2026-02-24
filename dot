@@ -1,0 +1,382 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[0;33m'
+readonly BLUE='\033[0;34m'
+readonly CYAN='\033[0;36m'
+readonly RESET='\033[0m'
+readonly BOLD='\033[1m'
+
+readonly SCRIPT_NAME="dot"
+readonly VERSION="1.0.0"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly DOTFILES_DIR
+
+BREWFILE="${DOTFILES_DIR}/Brewfile"
+readonly BREWFILE
+STOW_TARGET="${STOW_TARGET:-$HOME}"
+readonly STOW_TARGET
+
+DEFAULT_IGNORE_PACKAGES=("node_modules" ".git" ".github" "Brewfile" "README.md" "dot")
+
+print_header() {
+    echo -e "\n${BOLD}${BLUE}==>${RESET} ${BOLD}$1${RESET}"
+}
+
+print_success() {
+    echo -e "${GREEN}✓${RESET} $1"
+}
+
+print_error() {
+    echo -e "${RED}✗${RESET} $1" >&2
+}
+
+print_warning() {
+    echo -e "${YELLOW}⚠${RESET} $1"
+}
+
+print_info() {
+    echo -e "${CYAN}ℹ${RESET} $1"
+}
+
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+confirm() {
+    local prompt="${1:-Continue?}"
+    local default="${2:-n}"
+    
+    if [[ "$default" == "y" ]]; then
+        prompt="$prompt [Y/n]: "
+    else
+        prompt="$prompt [y/N]: "
+    fi
+    
+    read -r -p "$prompt" response
+    
+    case "$response" in
+        [yY][eE][sS]|[yY]) return 0 ;;
+        [nN][oO]|[nN]) return 1 ;;
+        "")
+            if [[ "$default" == "y" ]]; then
+                return 0
+            else
+                return 1
+            fi
+            ;;
+        *) return 1 ;;
+    esac
+}
+
+usage() {
+    cat <<EOF
+$SCRIPT_NAME v$VERSION
+
+Usage: $SCRIPT_NAME <command> [options]
+
+Commands:
+    init                Full system setup (installs everything)
+    stow [package]      Symlink dotfiles to home directory
+    link                Install dot command to PATH
+    unlink              Remove dot command from PATH
+    doctor              Run diagnostics
+    update              Update Homebrew packages
+    gen-ssh-key [email] Generate SSH key for GitHub/GitLab
+
+Options:
+    -h, --help          Show this help message
+    -v, --version       Show version
+
+Examples:
+    $SCRIPT_NAME init
+    $SCRIPT_NAME stow zsh
+    $SCRIPT_NAME doctor
+    $SCRIPT_NAME gen-ssh-key user@github.com
+EOF
+}
+
+cmd_init() {
+    print_header "Initializing system"
+    
+    if ! command_exists brew; then
+        print_info "Installing Homebrew..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        print_success "Homebrew installed"
+    else
+        print_success "Homebrew already installed"
+    fi
+    
+    print_info "Running brew bundle..."
+    if brew bundle --file="$BREWFILE"; then
+        print_success "Packages installed"
+    else
+        print_warning "Some packages failed to install"
+    fi
+    
+    print_info "Stowing dotfiles..."
+    cmd_stow
+    
+    print_info "Linking dot command..."
+    cmd_link
+    
+    print_header "Setup complete!"
+    print_info "Restart your shell or run: source ~/.zshrc"
+}
+
+cmd_stow() {
+    local package="${1:-}"
+    
+    discover_packages() {
+        local -a pkgs=()
+        while IFS= read -r -d '' entry; do
+            name="$(basename "$entry")"
+            skip=false
+            for ign in "${DEFAULT_IGNORE_PACKAGES[@]}"; do
+                if [[ "$name" == "$ign" ]]; then skip=true; break; fi
+            done
+            if [[ "$skip" == false ]]; then
+                pkgs+=("$name")
+            fi
+        done < <(find "$DOTFILES_DIR" -maxdepth 1 -mindepth 1 -type d -print0)
+        printf '%s\n' "${pkgs[@]}"
+    }
+    
+    local -a packages=()
+    if [[ -n "$package" ]]; then
+        packages=("$package")
+    else
+        while IFS= read -r pkg; do
+            packages+=("$pkg")
+        done < <(discover_packages)
+    fi
+    
+    if [[ ${#packages[@]} -eq 0 ]]; then
+        print_warning "No packages found to stow"
+        return 0
+    fi
+    
+    print_info "Packages: ${packages[*]}"
+    
+    if ! confirm "Stow these packages?"; then
+        print_info "Aborted"
+        return 1
+    fi
+    
+    TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
+    BACKUP_DIR="${HOME}/dotfiles_backup_${TIMESTAMP}"
+    mkdir -p "$BACKUP_DIR"
+    print_info "Backup directory: $BACKUP_DIR"
+    
+    backup_target() {
+        local target="$1"
+        local rel="$2"
+        local dest="${BACKUP_DIR}/${rel}"
+        
+        if [[ -e "$target" ]] || [[ -L "$target" ]]; then
+            mkdir -p "$(dirname "$dest")"
+            if [[ -L "$target" ]]; then
+                rm -v -- "$target"
+            else
+                mv -v -- "$target" "$dest"
+            fi
+        fi
+    }
+    
+    for pkg in "${packages[@]}"; do
+        pkg_dir="$DOTFILES_DIR/$pkg"
+        if [[ ! -d "$pkg_dir" ]]; then
+            print_warning "Skipping '$pkg' - directory not found"
+            continue
+        fi
+        
+        while IFS= read -r -d '' file; do
+            relpath="${file#${pkg_dir}/}"
+            target="${STOW_TARGET}/${relpath}"
+            backup_target "$target" "$pkg/$relpath"
+        done < <(find "$pkg_dir" -mindepth 1 -print0)
+        
+        stow -v -t "$STOW_TARGET" "$pkg"
+        print_success "Stowed: $pkg"
+    done
+    
+    print_success "All packages stowed"
+    print_info "Backups saved to: $BACKUP_DIR"
+}
+
+cmd_link() {
+    local bin_dir="${HOME}/.local/bin"
+    local bin_path="${bin_dir}/dot"
+    
+    if [[ -L "$bin_path" ]]; then
+        print_warning "dot is already linked"
+        return 0
+    fi
+    
+    mkdir -p "$bin_dir"
+    
+    if [[ -e "$bin_path" ]]; then
+        print_error "$bin_path exists and is not a symlink"
+        return 1
+    fi
+    
+    ln -s "$DOTFILES_DIR/dot" "$bin_path"
+    print_success "Linked dot to $bin_path"
+    
+    local zshrc="${HOME}/.zshrc"
+    local path_line='export PATH="$HOME/.local/bin:$PATH"'
+    
+    if [[ -f "$zshrc" ]] && grep -q "$path_line" "$zshrc"; then
+        print_info "PATH already configured in .zshrc"
+    else
+        echo "" >> "$zshrc"
+        echo "# dotfiles" >> "$zshrc"
+        echo "$path_line" >> "$zshrc"
+        print_info "Added PATH to .zshrc"
+    fi
+    
+    print_success "Run 'source ~/.zshrc' or restart shell to use dot"
+}
+
+cmd_unlink() {
+    local bin_path="${HOME}/.local/bin/dot"
+    
+    if [[ ! -L "$bin_path" ]]; then
+        print_warning "dot is not linked"
+        return 0
+    fi
+    
+    rm "$bin_path"
+    print_success "Unlinked dot"
+}
+
+cmd_doctor() {
+    print_header "Running diagnostics"
+    
+    local errors=0
+    
+    check_command() {
+        local cmd="$1"
+        local install_hint="$2"
+        
+        if command_exists "$cmd"; then
+            print_success "$cmd"
+        else
+            print_error "$cmd (install: $install_hint)"
+            ((errors++))
+        fi
+    }
+    
+    print_header "Core dependencies"
+    check_command brew "brew install brew"
+    check_command stow "brew install stow"
+    check_command zsh "brew install zsh"
+    
+    print_header "CLI tools"
+    check_command opencode "brew install opencode"
+    check_command agent-browser "brew install agent-browser"
+    check_command claude-code "brew install claude-code"
+    check_command codex "brew install codex"
+    
+    print_header "Version control"
+    check_command git "brew install git"
+    check_command gh "brew install gh"
+    check_command lazygit "brew install lazygit"
+    
+    print_header "Editors"
+    check_command code "code --install-extension <ext>"
+    check_command zed "brew install --cask zed"
+    
+    if [[ $errors -eq 0 ]]; then
+        print_header "All checks passed!"
+    else
+        print_error "$errors issue(s) found"
+    fi
+}
+
+cmd_update() {
+    print_header "Updating Homebrew packages"
+    
+    if ! command_exists brew; then
+        print_error "Homebrew not installed"
+        return 1
+    fi
+    
+    print_info "Running brew update..."
+    brew update
+    
+    print_info "Running brew upgrade..."
+    brew upgrade
+    
+    print_info "Running brew cleanup..."
+    brew cleanup
+    
+    print_success "Update complete"
+}
+
+cmd_gen_ssh_key() {
+    local email="${1:-}"
+    
+    if [[ -z "$email" ]]; then
+        read -rp "Email: " email
+    fi
+    
+    if [[ -z "$email" ]]; then
+        print_error "Email is required"
+        return 1
+    fi
+    
+    local domain name
+    domain=$(echo "$email" | cut -d@ -f2 | sed 's/\./_/g')
+    name=$(echo "$email" | cut -d@ -f1)
+    local key_name="id_ed25519_${name}_${domain}"
+    local key_path="${HOME}/.ssh/${key_name}"
+    
+    if [[ -e "$key_path" ]]; then
+        if ! confirm "Key $key_name already exists. Overwrite?"; then
+            print_info "Aborted"
+            return 1
+        fi
+        mv "${key_path}" "${key_path}.backup_$(date +%s)"
+        mv "${key_path}.pub" "${key_path}.pub.backup_$(date +%s)" 2>/dev/null || true
+    fi
+    
+    print_info "Generating SSH key: $key_name"
+    ssh-keygen -t ed25519 -C "$email" -f "$key_path" -N ""
+    
+    print_info "Starting ssh-agent..."
+    eval "$(ssh-agent -s)"
+    
+    print_info "Adding key to ssh-agent..."
+    ssh-add "$key_path"
+    
+    print_info "Copying public key to clipboard..."
+    pbcopy < "${key_path}.pub"
+    
+    print_success "Key created: $key_name"
+    print_success "Public key copied to clipboard"
+    print_info "Add to GitHub/GitLab: https://github.com/settings/keys"
+}
+
+main() {
+    local cmd="${1:-}"
+    
+    case "$cmd" in
+        init) shift; cmd_init "$@" ;;
+        stow) shift; cmd_stow "$@" ;;
+        link) cmd_link ;;
+        unlink) cmd_unlink ;;
+        doctor) cmd_doctor ;;
+        update) cmd_update ;;
+        gen-ssh-key) shift; cmd_gen_ssh_key "$@" ;;
+        -h|--help) usage ;;
+        -v|--version) echo "$SCRIPT_NAME v$VERSION" ;;
+        "") usage ;;
+        *) print_error "Unknown command: $cmd"; usage; exit 1 ;;
+    esac
+}
+
+main "$@"
