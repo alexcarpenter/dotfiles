@@ -31,6 +31,7 @@ DEFAULT_IGNORE_PACKAGES=("node_modules" ".git" ".github")  # top-level dirs to i
 BACKUP_DIR_BASE="${HOME}/dotfiles_backup"      # final dir will include timestamp
 DRY_RUN=false
 AUTO_YES=false
+SKIP_BREW=false
 REQUESTED_PACKAGES=()                          # if empty -> auto-discover
 VERBOSE=true
 
@@ -57,6 +58,7 @@ Options:
   -n, --dry-run           Show what would be done without changing anything.
   -y, --yes               Assume "yes" to all prompts (non-interactive).
   -p, --packages LIST     Comma-separated list of packages to stow (e.g. "zsh,karabiner").
+  -s, --skip-brew         Skip Homebrew bundle installation.
   -h, --help              Show this help and exit.
 
 Examples:
@@ -76,6 +78,7 @@ while [ "$#" -gt 0 ]; do
   case "$1" in
     -n|--dry-run) DRY_RUN=true; shift ;;
     -y|--yes) AUTO_YES=true; shift ;;
+    -s|--skip-brew) SKIP_BREW=true; shift ;;
     -p|--packages)
       if [ -z "${2:-}" ]; then err "Missing value for --packages"; exit 2; fi
       IFS=',' read -r -a REQUESTED_PACKAGES <<< "$2"
@@ -124,7 +127,9 @@ fi
 #######################################
 # Step 2: Run `brew bundle` to install Brewfile items
 #######################################
-if [ -f "$BREWFILE" ]; then
+if [ "$SKIP_BREW" = true ]; then
+  log "Skipping brew bundle (--skip-brew specified)."
+elif [ -f "$BREWFILE" ]; then
   log "Found Brewfile at ${BREWFILE}."
   if [ "$DRY_RUN" = true ]; then
     log "DRY RUN: Would run 'brew update' and 'brew bundle --file=${BREWFILE}'."
@@ -146,7 +151,10 @@ if ! command_exists stow; then
     log "DRY RUN: Would install GNU Stow via Homebrew (brew install stow)."
   else
     log "GNU Stow not found; installing via Homebrew..."
-    brew install stow
+    if ! brew install stow; then
+      err "Failed to install GNU Stow."
+      exit 1
+    fi
   fi
 else
   log "GNU Stow found."
@@ -212,7 +220,11 @@ backup_target() {
     return 0
   fi
   mkdir -p "$(dirname "$dest")"
-  mv -v -- "$target" "$dest"
+  if [ -L "$target" ]; then
+    rm -v -- "$target"
+  else
+    mv -v -- "$target" "$dest"
+  fi
 }
 
 # For each package, show a stow dry-run then back up existing targets
@@ -224,11 +236,7 @@ for pkg in "${PACKAGES[@]}"; do
   fi
 
   log "=== Preview stow for package: ${pkg} ==="
-  if [ "$DRY_RUN" = true ]; then
-    stow -n -v -t "${STOW_TARGET}" "$pkg" || true
-  else
-    stow -n -v -t "${STOW_TARGET}" "$pkg" || true
-  fi
+  stow -n -v -t "${STOW_TARGET}" "$pkg" || true
 
   # Build list of files/directories stow would link by finding all files in the package
   # We capture regular files and directories. Use null-delimited to be safe with spaces.
