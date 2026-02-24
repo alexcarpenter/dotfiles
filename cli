@@ -278,8 +278,8 @@ cmd_doctor() {
     print_header "CLI tools"
     check_command opencode "brew install opencode"
     check_command agent-browser "brew install agent-browser"
-    check_command claude-code "brew install claude-code"
-    check_command codex "brew install codex"
+    check_command claude "brew install --cask claude-code"
+    check_command codex "brew install --cask codex"
     
     print_header "Version control"
     check_command git "brew install git"
