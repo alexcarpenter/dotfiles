@@ -1,13 +1,9 @@
 {
-  "window.autoDetectColorScheme": true,
-  "workbench.colorTheme": "GitHub Dark",
-  "workbench.preferredLightColorTheme": "GitHub Light",
-  "workbench.preferredDarkColorTheme": "GitHub Dark",
+  "workbench.colorTheme": "Gruvbox Dark Hard",
   "workbench.tree.indent": 20,
   "editor.fontFamily": "JetBrains Mono, Menlo, Monaco, 'Courier New', monospace",
   "editor.fontSize": 15,
   "editor.tabSize": 2,
-  "editor.cursorStyle": "block",
   "editor.lineHeight": 1.75,
   "editor.minimap.enabled": false,
   "editor.renderWhitespace": "all",
@@ -27,5 +23,6 @@
   "git.mergeEditor": false,
   "editor.stickyScroll.enabled": true,
   "editor.accessibilitySupport": "off",
-  "git.autofetch": true
+  "git.autofetch": true,
+  "workbench.activityBar.location": "hidden"
 }
