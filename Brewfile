@@ -9,6 +9,8 @@ cask 'claude-code'
 cask 'codex'
 brew 'stow'
 brew 'lazygit'
+brew 'zoxide'
+brew 'eza'
 cask 'font-jetbrains-mono'
 
 cask 'iterm2'
