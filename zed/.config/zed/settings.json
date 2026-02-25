@@ -13,7 +13,4 @@
     "liga": false,
   },
   "preferred_line_length": 80,
-  "project_panel": {
-    "dock": "right",
-  },
 }
