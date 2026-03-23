@@ -1,5 +1,7 @@
 tap 'anomalyco/tap'
 brew 'zsh'
+brew 'zsh-autosuggestions'
+brew 'zsh-syntax-highlighting'
 brew 'gh'
 brew 'fnm'
 brew 'mole'
