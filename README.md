@@ -1,153 +1,208 @@
 # dotfiles
 
-Configuration files managed by [chezmoi](https://www.chezmoi.io/) for a consistent development environment across devices.
+Cross-device dotfiles management with [chezmoi](https://www.chezmoi.io/).
 
-## Installation
+## Quick Install
 
-### Quick Start
-
-Install chezmoi and apply dotfiles in one command:
-
+**New machine:**
 ```bash
 sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply alexcarpenter
 ```
 
-During setup, you'll be prompted for:
-- **Name**: Your full name (for Git commits)
-- **Email**: Your email address (for Git commits)
+Prompts: Name, Email
 
-### Manual Setup
-
-If you prefer manual installation:
-
-```bash
-# Install chezmoi
-sh -c "$(curl -fsLS get.chezmoi.io)" -- -b ~/.local/bin
-
-# Initialize and apply dotfiles
-chezmoi init --apply https://github.com/alexcarpenter/dotfiles.git
-```
-
-## Update Existing Installation
-
-Pull and apply the latest changes:
-
+**Existing machine:**
 ```bash
 chezmoi update
 ```
 
 ## What's Included
 
-- **zsh** - Shell configuration (.zshrc)
-- **karabiner** - Key remapping (karabiner.json)
-- **vscode** - Editor settings (settings.json)
-- **zed** - Zed editor configuration
-- **claude** - Claude CLI skills
-- **Brewfile** - macOS package dependencies
+- `.zshrc` - Shell config, aliases, PATH
+- `.gitconfig` - Git identity (templated), safe push defaults
+- `karabiner.json` - Key remapping
+- `settings.json` - VS Code theme & fonts
+- `Brewfile` - Packages (JetBrains Mono, ZSH plugins, etc.)
 
-## Multi-Device Sync
+## Golden Rule
 
-Keep your configuration synchronized across Mac, iMac, work laptop, etc.
+**Never edit dotfiles directly** — changes get lost.
 
-### Editing Dotfiles
+❌ Don't: `nano ~/.zshrc`, `vim ~/.config/karabiner/karabiner.json`
 
-⚠️ **Never edit files directly** (e.g., `nano ~/.zshrc`). Changes will be lost on next sync.
+✅ Do: `chezmoi edit ~/.zshrc`
 
-**Always use chezmoi:**
+## Workflow
 
+### 1. Edit
 ```bash
 chezmoi edit ~/.zshrc
-chezmoi edit ~/.config/karabiner/karabiner.json
-chezmoi edit ~/Library/Application\ Support/Code/User/settings.json
+```
+Opens in `$EDITOR` (VS Code by default). Auto-applies on save.
+
+### 2. Review
+```bash
+chezmoi diff        # See what changed
+chezmoi cat ~/.zshrc   # View rendered file
 ```
 
-This opens the file in your `$EDITOR` and auto-applies changes.
-
-### Push Changes to All Devices
-
-After editing:
-
+### 3. Push
 ```bash
 chezmoi cd && git push
 ```
 
-### Pull Latest on Other Devices
-
-On any other machine:
-
+### 4. Sync (other devices)
 ```bash
 chezmoi update
 ```
 
-This pulls the latest changes and applies them automatically.
+Done! All machines identical.
 
-### Preview Changes
+## Examples
 
-Before pulling, preview what would change:
+### Add alias on MacBook → Use on iMac
 
+**MacBook:**
 ```bash
-chezmoi diff
+chezmoi edit ~/.zshrc
+# Add: alias blog="cd ~/Sites/blog"
+
+chezmoi cd && git push
 ```
 
-### View Applied Files
-
-See the current rendered version:
-
+**iMac:**
 ```bash
-chezmoi cat ~/.zshrc
+chezmoi update
+chezmoi cat ~/.zshrc  # See new alias
 ```
 
-### Workflow Example
+### Update Karabiner everywhere
 
-**On MacBook:**
+**Any machine:**
 ```bash
-chezmoi edit ~/.zshrc          # Add new alias
-chezmoi diff                   # Review changes
-chezmoi cd && git push         # Push to GitHub
+chezmoi edit ~/.config/karabiner/karabiner.json
+chezmoi cd && git push
 ```
 
-**On iMac:**
+**Other machines:**
 ```bash
-chezmoi update                 # Pull and apply
-chezmoi cat ~/.zshrc           # Verify new alias is there
+chezmoi update
 ```
 
-Both machines now have identical configurations!
-
-## Common Commands
+## Commands
 
 | Task | Command |
 |------|---------|
-| Edit a dotfile | `chezmoi edit ~/.zshrc` |
-| Sync latest updates | `chezmoi update` |
-| Preview changes | `chezmoi diff` |
-| Push your edits | `chezmoi cd && git push` |
-| View current config | `chezmoi cat ~/.zshrc` |
+| Edit dotfile | `chezmoi edit ~/.zshrc` |
+| See changes | `chezmoi diff` |
+| View file | `chezmoi cat ~/.zshrc` |
+| Push | `chezmoi cd && git push` |
+| Pull & apply | `chezmoi update` |
 | Add new file | `chezmoi add ~/.config/app/config` |
+| History | `chezmoi cd && git log --oneline` |
+| Undo | `cd ~/.local/share/chezmoi && git reset --hard HEAD` |
 
 ## Troubleshooting
 
-### Check what would change
-
+### "chezmoi: command not found"
 ```bash
-chezmoi diff
+export PATH="$HOME/.local/bin:$PATH"
+```
+Add to `.zshrc` permanently with `chezmoi edit ~/.zshrc`
+
+### Changes not showing after `chezmoi update`
+```bash
+chezmoi apply      # Force reapply
+exec zsh           # Restart shell
 ```
 
-### View rendered template
-
+### Manual edits lost?
 ```bash
-chezmoi cat ~/.config/karabiner/karabiner.json
+chezmoi apply      # Restore from source
 ```
 
-### Undo changes
-
+### Out of sync across devices
 ```bash
-cd ~/.local/share/chezmoi
-git reset --hard HEAD
+chezmoi cd && git pull --rebase
 chezmoi apply
 ```
 
-## More Information
+### Preview before syncing
+```bash
+chezmoi diff       # See what would change
+chezmoi update     # Then apply
+```
 
-- [chezmoi Documentation](https://www.chezmoi.io/user-guide/command-overview/)
-- [chezmoi Quick Start](https://www.chezmoi.io/quick-start/)
+## File Locations
+
+Source directory: `~/.local/share/chezmoi/`
+
+Repository files (with `dot_` prefix):
+- `dot_zshrc` → `~/.zshrc`
+- `dot_gitconfig.tmpl` → `~/.gitconfig` (templated)
+- `dot_config/karabiner/karabiner.json` → `~/.config/karabiner/karabiner.json`
+- `Library/Application\ Support/Code/User/dot_settings.json` → `~/Library/Application\ Support/Code/User/settings.json`
+- `dot_Brewfile` → `~/Brewfile`
+
+## Templating
+
+Files ending in `.tmpl` use Go templates:
+- `{{ .user.name }}` - Your name (from setup)
+- `{{ .user.email }}` - Your email
+- `{{ .chezmoi.os }}` - darwin, linux, etc. (conditional sections)
+- `{{ .chezmoi.hostname }}` - Machine name (work vs personal)
+
+Example (`.gitconfig.tmpl`):
+```toml
+[user]
+  name = {{ .user.name }}
+  email = {{ .user.email }}
+
+{{ if eq .chezmoi.os "darwin" }}
+[credential]
+  helper = osxkeychain
+{{ end }}
+```
+
+## Setup Prompts
+
+First run saves to `~/.config/chezmoi/chezmoi.toml`:
+```toml
+[data.user]
+  name = "Alex Carpenter"
+  email = "im.alexcarpenter@gmail.com"
+
+[data.machine]
+  hostname = "Alexs-Mac-mini"
+```
+
+## Common Issues
+
+**Git config not rendering correctly:**
+```bash
+chezmoi cat ~/.gitconfig  # Check rendered output
+```
+
+**New machine has wrong email:**
+```bash
+chezmoi init  # Re-run setup prompts
+```
+
+**Push blocked:**
+```bash
+chezmoi cd && git push
+# If fails: check GitHub auth, SSH keys
+```
+
+## More Info
+
+- [Chezmoi Docs](https://www.chezmoi.io/)
+- [User Guide](https://www.chezmoi.io/user-guide/)
+- [Templating](https://www.chezmoi.io/user-guide/templating/)
+- [FAQ](https://www.chezmoi.io/faq/)
+
+---
+
+**Devices synced:** MacBook, iMac, Work Laptop
+
+**Core files:** .zshrc, .gitconfig, karabiner.json, VS Code settings, Brewfile
