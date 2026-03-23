@@ -1,0 +1,10 @@
+README.md
+CHEZMOI_MIGRATION_PLAN.md
+docs/**
+.git/**
+.github/**
+.gitignore
+
+{{ if ne .chezmoi.os "darwin" }}
+Library/**
+{{ end }}

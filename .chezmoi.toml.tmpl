@@ -1,0 +1,10 @@
+{{ $name := promptString "Name" -}}
+{{ $email := promptString "Email" -}}
+{{ $hostname := .chezmoi.hostname -}}
+
+[data.user]
+  name = {{ $name | quote }}
+  email = {{ $email | quote }}
+
+[data.machine]
+  hostname = {{ $hostname | quote }}
