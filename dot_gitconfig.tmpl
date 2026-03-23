@@ -2,6 +2,16 @@
 	name = {{ .user.name }}
 	email = {{ .user.email }}
 
+[push]
+	default = simple
+	autoSetupRemote = true
+
+[core]
+	excludesfile = ~/.gitignore
+
+[init]
+	defaultBranch = main
+
 {{ if eq .chezmoi.os "darwin" }}
 [credential]
 	helper = osxkeychain
