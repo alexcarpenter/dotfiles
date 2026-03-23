@@ -2,7 +2,7 @@
   "workbench.colorTheme": "Gruvbox Dark Hard",
   "workbench.tree.indent": 20,
   "editor.fontFamily": "JetBrains Mono, Menlo, Monaco, 'Courier New', monospace",
-  "editor.fontSize": 15,
+  "editor.fontSize": 14,
   "editor.tabSize": 2,
   "editor.lineHeight": 1.75,
   "editor.minimap.enabled": false,
@@ -14,8 +14,7 @@
   "editor.cursorSmoothCaretAnimation": "on",
   "editor.cursorBlinking": "phase",
   "workbench.fontAliasing": "auto",
-  "workbench.sideBar.location": "right",
-  "terminal.integrated.fontSize": 18,
+  "terminal.integrated.fontSize": 14,
   "terminal.integrated.lineHeight": 1.2,
   "workbench.settings.editor": "json",
   "window.title": "${activeEditorLong}${separator}${rootName}",
@@ -24,5 +23,12 @@
   "editor.stickyScroll.enabled": true,
   "editor.accessibilitySupport": "off",
   "git.autofetch": true,
-  "workbench.activityBar.location": "hidden"
+  "workbench.activityBar.location": "hidden",
+  "[astro]": {
+    "editor.defaultFormatter": "astro-build.astro-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "workbench.sideBar.location": "right"
 }
